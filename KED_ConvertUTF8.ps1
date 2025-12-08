@@ -1,5 +1,5 @@
 param(
-    [string]$ConfigPath = ".\config.json",
+    [string]$ConfigPath = ".\config.json"
 )
 
 # ---------------------------------------------------------
