@@ -39,7 +39,7 @@ function Invoke-ExtractJarForDate {
     }
 
     if (Test-Path $sourceFile) {
-        Log "SKIP (already exists)--> $sourceFile"
+        Log "SKIP (already exists) --> $sourceFile"
     } 
     else {
         Log "Extracting JAR file to $targetDir" "INFO"
