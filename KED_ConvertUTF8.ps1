@@ -175,10 +175,6 @@ else {
     Log "ORDER = Newest --> Oldest"
 }
 
-$selectedDates = $pendingDates |
-    Sort-Object { [int]$_ } |
-    Select-Object -First $MaxCount
-
 Log "PENDING DATES TO CONVERT (up to $MaxCount) --> $($selectedDates -join ', ')"
 Log ""
 
