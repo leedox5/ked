@@ -22,6 +22,10 @@ $config = Get-AppConfig -ConfigPath $ConfigPath
 $SourceRoot = $config.SourceRoot
 $TargetRoot = $config.TargetRoot
 
+$ProcessOder = $config.ProcessOder
+if (-not $ProcessOder) {
+    $ProcessOder = "Oldest"
+}
 
 # ---------------------------------------------------------
 # Logging Utility
@@ -151,7 +155,23 @@ if (-not $pendingDates) {
     exit
 }
 
+$ascending = 
+    if ($ProcessOder -ieq "Oldest") { $true } else { $false }
+
 # 2) 작업 필요 날짜를 정렬 후, 가장 오래된 것부터 MaxCount개 선택
+if ($ascending) {
+    $selectedDates = $pendingDates |
+        Sort-Object { [int]$_ } |
+        Select-Object -First $MaxCount
+    Log "ORDER = Oldest --> Newst"
+}
+else {
+    $selectedDates = $pendingDates |
+        Sort-Object { [int]$_ } -Descending |
+        Select-Object -First $MaxCount
+    Log "ORDER = Newest --> Oldest"
+}
+
 $selectedDates = $pendingDates |
     Sort-Object { [int]$_ } |
     Select-Object -First $MaxCount
