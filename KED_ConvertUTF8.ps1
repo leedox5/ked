@@ -20,9 +20,9 @@ $config = Get-AppConfig -ConfigPath $ConfigPath
 
 $TargetRoot = $config.TargetRoot
 
-$ProcessOder = $config.ProcessOder
-if (-not $ProcessOder) {
-    $ProcessOder = "Oldest"
+$ProcessOrder = $config.ProcessOrder
+if (-not $ProcessOrder) {
+    $ProcessOrder = "Oldest"
 }
 
 $MaxCount = $config.MaxProcessCount
@@ -159,7 +159,7 @@ if (-not $pendingDates) {
 }
 
 $ascending = 
-    if ($ProcessOder -ieq "Oldest") { $true } else { $false }
+    if ($ProcessOrder -ieq "Oldest") { $true } else { $false }
 
 # 2) 작업 필요 날짜를 정렬 후, 가장 오래된 것부터 MaxCount개 선택
 if ($ascending) {
