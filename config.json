@@ -1,0 +1,10 @@
+{
+    "TargetRoot": "D:\\WORK\\DATA",
+    "ChkFile": "CHK-2505-02.LOG",
+    "MySQL": {
+        "User": "root",
+        "Password": "12345678", 
+        "Database": "db0430",
+        "Table": "ked5026"
+    }
+}
