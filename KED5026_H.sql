@@ -1,0 +1,27 @@
+-- 거래처 이력
+CREATE TABLE KED5026_H (
+  KEDCD	          VARCHAR(10)
+ ,IN_DATE         CHAR(8)
+ ,STD_DT	        VARCHAR(8)
+ ,TXPL_CCD	      CHAR(1)
+ ,TXPL_SEQ	      VARCHAR(4)
+ ,TX_AM_BASE_STDT VARCHAR(8)
+ ,TX_AM_BASE_EDDT VARCHAR(8)
+ ,TXPL_NM	        VARCHAR(100)
+ ,TEL_NO	        VARCHAR(20)
+ ,BZNO	          VARCHAR(10)
+ ,TXPL_KEDCD	    VARCHAR(10)
+ ,DO_CCD	        CHAR(1)
+ ,TX_FCD	        VARCHAR(50)
+ ,PD_NM	          VARCHAR(100)
+ ,PD_CD	          VARCHAR(9)
+ ,TX_AM	          BIGINT
+ ,TX_RT	          DECIMAL(5, 2)
+ ,TX_PRD	        BIGINT
+ ,CSH_STL_RT	    DECIMAL(5, 2)
+ ,CR_STL_RT	      DECIMAL(5, 2)
+ ,CR_STL_DCN	    BIGINT
+ ,CND_ETC	        VARCHAR(200)
+ ,RMK	            VARCHAR(200)
+ ,PRIMARY KEY (KEDCD, IN_DATE)
+);
