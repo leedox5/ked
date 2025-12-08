@@ -84,24 +84,52 @@ function Convert-UTF8ForDate {
     Log "UTF8 DONE --> $DateStr"
 }
 
-
 # ---------------------------------------------------------
 # MAIN
+#   1) TargetRoot 아래 yyyyMMdd 폴더 전체 스캔
+#   2) 각 날짜 폴더에 대해 "아직 변환할 txt가 남아있는지" 체크
+#   3) 작업 필요 날짜만 모아서, 가장 오래된 것부터 MaxCount개 선택
 # ---------------------------------------------------------
 
-# 날짜 폴더 목록
-$dateList = Get-ChildItem -Path $TargetRoot -Directory |
+
+# 1) 모든 날짜 폴더 후보
+$allDates = Get-ChildItem -Path $TargetRoot -Directory |
     Where-Object { $_.Name -match '^\d{8}$' } |
-    Select-Object -ExpandProperty Name |
-    Sort-Object {[int]$_}
+    Select-Object -ExpandProperty Name
 
-# 가장 오래된 날짜부터 MaxCount개만 처리
-$selectedDates = $dateList | Select-Object -First $MaxCount
+$pendingDates = @()
 
-Log "DATES TO CONVERT ($MaxCount) --> $($selectedDates -join ', ')"
+foreach ($d in $allDates) {
+    $dir = Join-Path $TargetRoot $d
+
+    # 폴더 내 원본 txt 후보:
+    #  - *.txt
+    #  - 이름에 -UTF8.txt가 없는 것
+    #  - 0바이트 아님
+    $candidates = Get-ChildItem -Path $dir -Filter "*.txt" -ErrorAction SilentlyContinue |
+                  Where-Object { $_.Name -notmatch '-UTF8\.txt$' -and $_.Length -gt 0 }
+
+    if ($candidates -and $candidates.Count -gt 0) {
+        # 아직 변환할 txt가 남아있는 날짜
+        $pendingDates += $d
+    }
+}
+
+if (-not $pendingDates) {
+    Log "NO PENDING DATES: All TXT files are already UTF8-converted."
+    exit
+}
+
+# 2) 작업 필요 날짜를 정렬 후, 가장 오래된 것부터 MaxCount개 선택
+$selectedDates = $pendingDates |
+    Sort-Object { [int]$_ } |
+    Select-Object -First $MaxCount
+
+Log "PENDING DATES TO CONVERT (up to $MaxCount) --> $($selectedDates -join ', ')"
+Log ""
 
 foreach ($d in $selectedDates) {
     Convert-UTF8ForDate -DateStr $d
 }
 
-Log "ALL UTF8 CONVERT COMPLETE"
+Log "ALL UTF8 CONVERT PASS COMPLETE"
