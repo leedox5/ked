@@ -52,7 +52,6 @@ function Invoke-TableTruncate {
 
     if ($exitCode -eq 0) {
         Log "TABLE '$tableName' truncated successfully" "INFO"
-        throw "Failed to truncate table '$tableName'. MySQL exited with code $exitCode."
     }
     else {
         Log "Failed to truncate table '$tableName'. ExitCode=$exitCode" "ERROR"
