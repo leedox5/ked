@@ -87,10 +87,11 @@ function Convert-UTF8ForDate {
 # ---------------------------------------------------------
 # MAIN
 #   1) TargetRoot 아래 yyyyMMdd 폴더 전체 스캔
-#   2) 각 날짜 폴더에 대해 "아직 변환할 txt가 남아있는지" 체크
+#   2) 각 날짜 폴더에 대해
+#      - 모든 원본 txt가 대응되는 UTF8 파일을 갖고 있으면 "완료"
+#      - 아니면 "작업 필요"
 #   3) 작업 필요 날짜만 모아서, 가장 오래된 것부터 MaxCount개 선택
 # ---------------------------------------------------------
-
 
 # 1) 모든 날짜 폴더 후보
 $allDates = Get-ChildItem -Path $TargetRoot -Directory |
@@ -102,15 +103,45 @@ $pendingDates = @()
 foreach ($d in $allDates) {
     $dir = Join-Path $TargetRoot $d
 
-    # 폴더 내 원본 txt 후보:
-    #  - *.txt
-    #  - 이름에 -UTF8.txt가 없는 것
-    #  - 0바이트 아님
-    $candidates = Get-ChildItem -Path $dir -Filter "*.txt" -ErrorAction SilentlyContinue |
-                  Where-Object { $_.Name -notmatch '-UTF8\.txt$' -and $_.Length -gt 0 }
+    # 폴더 내 전체 txt 파일
+    $allTxt = Get-ChildItem -Path $dir -Filter "*.txt" -ErrorAction SilentlyContinue
 
-    if ($candidates -and $candidates.Count -gt 0) {
-        # 아직 변환할 txt가 남아있는 날짜
+    if (-not $allTxt) {
+        continue
+    }
+
+    # 원본 txt (UTF8 아님, 0바이트 아님)
+    $srcTxt = $allTxt |
+        Where-Object { $_.Name -notmatch '-UTF8\.txt$' -and $_.Length -gt 0 }
+
+    if (-not $srcTxt) {
+        # 원본 txt 자체가 없다면 할 일 없음
+        continue
+    }
+
+    # UTF8 txt들
+    $utfTxt = $allTxt |
+        Where-Object { $_.Name -match '-UTF8\.txt$' }
+
+    # 이 날짜 폴더가 "완료"되었는지 판단
+    $allConverted = $true
+
+    foreach ($src in $srcTxt) {
+        $base = [System.IO.Path]::GetFileNameWithoutExtension($src.Name)
+        # base-어떤날짜-UTF8.txt 가 하나라도 있으면 OK
+        $pattern = "$base-*-UTF8.txt"
+
+        $match = $utfTxt | Where-Object { $_.Name -like $pattern }
+
+        if (-not $match) {
+            # 이 baseName에 대응하는 UTF8이 없다 → 아직 미완료
+            $allConverted = $false
+            break
+        }
+    }
+
+    if (-not $allConverted) {
+        # 아직 변환 안 된 txt가 하나라도 있으면 작업 대상
         $pendingDates += $d
     }
 }
