@@ -4,7 +4,7 @@ param (
 
 # User configuration
 $targetRoot = "D:\WORK\DATA"
-$chkFile = "CHK-2505-02.LOG"
+$chkFile = "CHK-KED5026-02.LOG"
 $mysqlUser = "root"
 $mysqlPass = "12345678"
 $mysqlDB   = "db0430"
