@@ -109,4 +109,3 @@ if ($folders.Count -eq 0) {
 Set-Location $originalLocation
 
 Stop-Transcript
-
