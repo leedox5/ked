@@ -1,6 +1,5 @@
 param(
     [string]$ConfigPath = ".\config.json",
-    [int]$MaxCount = 5   # 처리할 날짜 갯수
 )
 
 # ---------------------------------------------------------
@@ -19,12 +18,16 @@ function Get-AppConfig {
 
 $config = Get-AppConfig -ConfigPath $ConfigPath
 
-$SourceRoot = $config.SourceRoot
 $TargetRoot = $config.TargetRoot
 
 $ProcessOder = $config.ProcessOder
 if (-not $ProcessOder) {
     $ProcessOder = "Oldest"
+}
+
+$MaxCount = $config.MaxProcessCount
+if (-not $MaxCount -or $MaxCount -le 0) {
+    $MaxCount = 5
 }
 
 # ---------------------------------------------------------
