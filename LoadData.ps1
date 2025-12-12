@@ -27,6 +27,32 @@ function Get-AppConfig {
     return $config
 }
 
+function Invoke-MySql {
+    param(
+        [pscustomobject]$Config,    
+        [string]$Sql
+    )
+    $user = $Config.MySQL.User
+    $pass = $Config.MySQL.Password
+    $db = $Config.MySQL.Database
+
+    $arguments = @(
+        "--local-infile=1"
+        "-u", $user
+        "-p$pass"
+        $db
+        "-e", $sql
+    )
+    
+    Log "Executing: $sql"
+
+    & mysql $arguments
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "mysql.exe faild. exitCode=$LASTEXITCODE"
+    }
+}
+
 function Invoke-TableTruncate {
     param(
         [pscustomobject]$Config,
@@ -60,10 +86,9 @@ function Invoke-TableTruncate {
 function Invoke-LoadFromCsv {
     param (
         [PSCustomObject]$Config,
-        [string]$Utf8File
+        [string]$Utf8File,
+        [string]$TableName
     )
-    $tableName = $Utf8File.Substring(22, 7)
-
     $mysqlUser = $Config.MySQL.User
     $mysqlPass = $Config.MySQL.Password
     $mysqlDB = $Config.MySQL.Database
@@ -77,7 +102,7 @@ function Invoke-LoadFromCsv {
         "-p$mysqlPass" 
         $mysqlDB 
         "-e" 
-        "LOAD DATA LOCAL INFILE '$mysqlFilePath' INTO TABLE $tableName FIELDS TERMINATED BY '|';"
+        "LOAD DATA LOCAL INFILE '$mysqlFilePath' INTO TABLE $TableName FIELDS TERMINATED BY '|';"
     )
 
     & mysql @arguments
@@ -138,8 +163,23 @@ try {
             }
 
             try {
+                <#
                 Invoke-TableTruncate -Config $config -TableName $table
-                Invoke-LoadFromCsv -Config $config -Utf8File $utf.FullName
+                Invoke-LoadFromCsv -Config $config -Utf8File $utf.FullName -TableName $table
+                #>
+                Invoke-MySql -Config $config -sql "TRUNCATE TABLE $table;"
+
+                # MySQL-safe path
+                $mysqlFilePath = $utf.FullName -replace "\\", "/"  
+
+                Invoke-MySql -Config $config -sql "LOAD DATA LOCAL INFILE '$mysqlFilePath' INTO TABLE $table FIELDS TERMINATED BY '|';"
+
+                $procName = "CHK_$table"
+                if ($table -eq "KED5026") {
+                    $procName += "_HIST"
+                }
+
+                Invoke-MySql -Config $config -sql "CALL $procName('$stdDate');"
 
                 New-Item -ItemType File -Path $doneFile | Out-Null
                 Log "DONE CREATED --> $doneFile"
