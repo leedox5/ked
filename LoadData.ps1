@@ -123,6 +123,7 @@ try {
 
             if ($doneCount -ge $maxCount) {
                 Log "MAX LOAD COUNT REACHED -> STOP BATCH"
+                Log "SKIP: $skipCount, DONE: $doneCount"
                 return
             }
 
