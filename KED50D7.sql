@@ -30,11 +30,8 @@ CREATE TABLE KED50D7 (
 
     RMK          VARCHAR(200) NULL     COMMENT '경영진에 대한 특이사항',
 
-    -- 필요 없으면 PK 제거/수정해도 됨(문서에 키 정의가 없어서 안전하게 복합키로 잡음)
-    PRIMARY KEY (KEDCD, PCD, STD_DT, PID),
+    PRIMARY KEY (KEDCD, PCD, STD_DT),
 
-    INDEX IX_KED50D7_01 (KEDCD, STD_DT),
-    INDEX IX_KED50D7_02 (PCD)
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_0900_ai_ci
