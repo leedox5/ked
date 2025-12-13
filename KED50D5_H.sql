@@ -57,6 +57,10 @@ CREATE TABLE KED50D5_H (
 
     -- 도로명 주소(2012.05.02 추가)
     LOC_RDNM_ZIP   VARCHAR(6)   NULL     COMMENT '도로명주소지 우편번호(2012.05.02 추가)',
+    LOC_RDNM_ADDRA          VARCHAR(100) NULL COMMENT '도로명소재지 우편번호주소',
+    LOC_RDNM_ADDRB          VARCHAR(200) NULL COMMENT '도로명소재지 우편번호이하주소',
+    LOC_RDNM_ADDRB_CONF_YN  CHAR(1)      NULL COMMENT '도로명이하주소확인여부(코드클래스:1041)',
+    LOC_ADDRB_CONF_YN       CHAR(1)      NULL COMMENT '소재지주소확인여부(코드클래스:1041)',    
 
     UPDATED   VARCHAR(20)   COMMENT '갱신일',
 
