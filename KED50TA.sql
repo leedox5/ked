@@ -41,7 +41,7 @@ CREATE TABLE KED50TA (
     ACCT_DT         CHAR(8)      NULL COMMENT '재무제표 결산기준일',
     BZC_CD          VARCHAR(6)   NULL COMMENT '표준산업분류코드(2017년 7월 기준 10차)',
 
-    PRIMARY KEY (BASE_DT, BZNOD)
+    PRIMARY KEY (BASE_DT, BZNO)
 )
 ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
