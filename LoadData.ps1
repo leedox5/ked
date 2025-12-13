@@ -53,70 +53,6 @@ function Invoke-MySql {
     }
 }
 
-function Invoke-TableTruncate {
-    param(
-        [pscustomobject]$Config,
-        [string]$TableName
-    )
-
-    $mysqlUser = $Config.MySQL.User
-    $mysqlPass = $Config.MySQL.Password
-    $mysqlDB = $Config.MySQL.Database
-
-    $arguments = @(
-        "--local-infile=1"
-        "-u", $mysqlUser
-        "-p$mysqlPass"
-        $mysqlDB
-        "-e", "TRUNCATE TABLE $TableName;"
-    )
-    
-    & mysql @arguments
-    $exitCode = $LASTEXITCODE
-
-    if ($exitCode -eq 0) {
-        Log "TABLE '$TableName' truncated successfully" "INFO"
-    }
-    else {
-        Log "Failed to truncate table '$TableName'. ExitCode=$exitCode" "ERROR"
-        throw "MySQL command failed with exit code $exitCode"
-    }
-}
-
-function Invoke-LoadFromCsv {
-    param (
-        [PSCustomObject]$Config,
-        [string]$Utf8File,
-        [string]$TableName
-    )
-    $mysqlUser = $Config.MySQL.User
-    $mysqlPass = $Config.MySQL.Password
-    $mysqlDB = $Config.MySQL.Database
-
-    # MySQL-safe path
-    $mysqlFilePath = $Utf8File -replace "\\", "/"  
-
-    $arguments = @(
-        "--local-infile=1"
-        "-u", $mysqlUser 
-        "-p$mysqlPass" 
-        $mysqlDB 
-        "-e" 
-        "LOAD DATA LOCAL INFILE '$mysqlFilePath' INTO TABLE $TableName FIELDS TERMINATED BY '|';"
-    )
-
-    & mysql @arguments
-    $exitCode = $LASTEXITCODE
-
-    if ($exitCode -eq 0) {
-        Log "TABLE ked5026 loaded successfully"
-    }
-    else {
-        Log "Failed to load table ked5026. ExitCode=$exitCode" "ERROR"
-        throw "MySQL command failed with exit code $exitCode"
-    }
-
-}
 
 try {
     $config = Get-AppConfig -Path $ConfigPath
@@ -163,10 +99,6 @@ try {
             }
 
             try {
-                <#
-                Invoke-TableTruncate -Config $config -TableName $table
-                Invoke-LoadFromCsv -Config $config -Utf8File $utf.FullName -TableName $table
-                #>
                 Invoke-MySql -Config $config -sql "TRUNCATE TABLE $table;"
 
                 # MySQL-safe path
