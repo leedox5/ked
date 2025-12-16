@@ -48,7 +48,7 @@ foreach ($d in $folders) {
         $table = $parts[0]
         $stdDate = $parts[1]
 
-        $doneFile = [IO.path]::ChangeExtension($utf.FullName, ".done")
+        $doneFile = [IO.path]::ChangeExtension($utf.FullName, ".comp")
 
         if ($doneCount -ge $maxCount) {
             Log "MAX LOAD COUNT REACHED -> STOP BATCH"
