@@ -3,22 +3,11 @@ CREATE PROCEDURE CHK_KED5003 (IN IN_DATE VARCHAR(20))
 BEGIN
 
 insert into ked5003_h
-select KEDCD
-      ,IN_DATE
-      ,ACCT_DT
-      ,SUMASSET
-      ,PAYMENTFUND
-      ,FUNDTOTAL
-      ,SALES
-      ,PROFIT
-      ,TERMNETPROFIT  
-  from corp_info_main a
-      inner join
-       ked5003 b
-      on b.kedcd = a.ked_code
+select a.*
+      ,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+  from ked5003 a
     on duplicate key
-update acct_dt = b.acct_dt
-;
+update updated = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s');
 
 END $$
 DELIMITER ;
