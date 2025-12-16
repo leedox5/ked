@@ -16,6 +16,7 @@ $maxCount = $config.MaxLoadCount
 
 $skipCount = 0
 $doneCount = 0
+$errorCount = 0
 
 $TargetTables = ($config.TargetTables -split '\s*,\s*') | Where-Object { $_ -ne '' }
 
@@ -54,6 +55,12 @@ foreach ($d in $folders) {
             return
         }
 
+        if ($errorCount -ge $maxCount) {
+            Log "MAX Error count reached, STOP BATCH"
+            Log "SKIP: $skipCount, DONE: $doneCount, ERROR: $errorCount"
+            return
+        }
+
         if (Test-Path $doneFile) {
             $skipCount++
             continue
@@ -86,6 +93,7 @@ foreach ($d in $folders) {
         }
         catch {
             Log "ERROR on $table / $stdDate : $($_.Exception.Message)" "ERROR"
+            $errorCount++
         }
     }
 }       
