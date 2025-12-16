@@ -1,4 +1,4 @@
-$ConfigPath = "D:\WORK\config-db1215.json"
+$ConfigPath = "D:\WORK\config.json"
 
 $lib = Join-Path $PSScriptRoot "lib"
 
