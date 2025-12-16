@@ -3,8 +3,6 @@ function Invoke-MySql {
         [pscustomobject]$Config,    
         [string]$Sql
     )
-    $user = $Config.MySQL.User
-    $pass = $Config.MySQL.Password
     $db = $Config.MySQL.Database
 
     $arguments = @(
@@ -14,8 +12,10 @@ function Invoke-MySql {
         $db
         "-e", $sql
     )
-    
+
+    <#
     Log "Executing: $sql"
+    #>
 
     & mysql $arguments
 
