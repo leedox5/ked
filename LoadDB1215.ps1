@@ -29,6 +29,7 @@ if (-not $DdlRoot) {
 
 foreach ($t in $TargetTables) {
     Ensure-Table -Config $config -TableName $t -DdlRoot $DdlRoot
+    Ensure-Table -Config $config -Tablename "$($t)_H" -DdlRoot $DdlRoot
 }
 
 
