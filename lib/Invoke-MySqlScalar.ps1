@@ -9,11 +9,10 @@ function Invoke-MySqlScalar {
     $db = $Config.MySQL.Database
 
     $arguments = @(
+        "--login-path=ked"
         "--default-character-set=utf8mb4"
         "--local-infile=1"
         "-N", "-B"              # 결과만 깔끔하게
-        "-u", $user
-        "-p$pass"
         $db
         "-e", $Sql
     )

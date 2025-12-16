@@ -8,10 +8,9 @@ function Invoke-MySql {
     $db = $Config.MySQL.Database
 
     $arguments = @(
+        "--login-path=ked"
         "--default-character-set=utf8mb4"
         "--local-infile=1"
-        "-u", $user
-        "-p$pass"
         $db
         "-e", $sql
     )
