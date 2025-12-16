@@ -7,6 +7,7 @@ $lib = Join-Path $PSScriptRoot "lib"
 . "$lib\Invoke-MySql.ps1"
 . "$lib\Invoke-MySqlScalar.ps1"
 . "$lib\Ensure-Table.ps1"
+. "$lib\Ensure-Procedure.ps1"
 
 $config = Get-AppConfig -Path $ConfigPath
 
@@ -30,8 +31,10 @@ if (-not $DdlRoot) {
 foreach ($t in $TargetTables) {
     Ensure-Table -Config $config -TableName $t -DdlRoot $DdlRoot
     Ensure-Table -Config $config -Tablename "$($t)_H" -DdlRoot $DdlRoot
-}
 
+    $procName = "CHK_$t"
+    Ensure-Procedure -Config $config -ProcName $procName -DdlRoot $DdlRoot
+}
 
 $folders = Get-ChildItem $TargetRoot -Directory |
 Sort-Object Name -Descending
