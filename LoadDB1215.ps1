@@ -84,9 +84,12 @@ foreach ($d in $folders) {
             Invoke-MySql -Config $config -sql "LOAD DATA LOCAL INFILE '$mysqlFilePath' INTO TABLE $table FIELDS TERMINATED BY '|';"
 
             $procName = "CHK_$table"
+            
+            <#
             if ($table -eq "KED5026") {
                 $procName += "_HIST"
             }
+            #>
 
             Invoke-MySql -Config $config -sql "CALL $procName('$stdDate');"
 
