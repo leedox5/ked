@@ -1,5 +1,5 @@
 param(
-    [string]$ConfigPath = ".\config.json"
+    [string]$ConfigPath = "D:\WORK\config.json"
 )
 
 # ---------------------------------------------------------
@@ -58,7 +58,7 @@ function Convert-UTF8ForDate {
 
     # txt 파일 목록
     $txtFiles = Get-ChildItem -Path $targetDir -Filter "*.txt" |
-            Where-Object { $_.Name -notmatch '-UTF8\.txt$' }
+    Where-Object { $_.Name -notmatch '-UTF8\.txt$' }
 
     foreach ($file in $txtFiles) {
 
@@ -72,7 +72,7 @@ function Convert-UTF8ForDate {
 
         # 2) baseName-*-UTF8.txt 존재 여부 체크 → 있으면 Skip
         $utfExists = Get-ChildItem -Path $targetDir -Filter "$($base)-*-UTF8.txt" `
-                     -ErrorAction SilentlyContinue
+            -ErrorAction SilentlyContinue
 
         if ($utfExists) {
             Log "SKIP (UTF8 exists) --> $base"
@@ -85,7 +85,7 @@ function Convert-UTF8ForDate {
         # 4) 변환 수행
         Log "CONVERT --> $dst"
         (Get-Content $file.FullName) |
-            Set-Content -Encoding UTF8 -Path $dst
+        Set-Content -Encoding UTF8 -Path $dst
     }
 
     Log "UTF8 DONE --> $DateStr"
@@ -102,8 +102,8 @@ function Convert-UTF8ForDate {
 
 # 1) 모든 날짜 폴더 후보
 $allDates = Get-ChildItem -Path $TargetRoot -Directory |
-    Where-Object { $_.Name -match '^\d{8}$' } |
-    Select-Object -ExpandProperty Name
+Where-Object { $_.Name -match '^\d{8}$' } |
+Select-Object -ExpandProperty Name
 
 $pendingDates = @()
 
@@ -119,7 +119,7 @@ foreach ($d in $allDates) {
 
     # 원본 txt (UTF8 아님, 0바이트 아님)
     $srcTxt = $allTxt |
-        Where-Object { $_.Name -notmatch '-UTF8\.txt$' -and $_.Length -gt 0 }
+    Where-Object { $_.Name -notmatch '-UTF8\.txt$' -and $_.Length -gt 0 }
 
     if (-not $srcTxt) {
         # 원본 txt 자체가 없다면 할 일 없음
@@ -128,7 +128,7 @@ foreach ($d in $allDates) {
 
     # UTF8 txt들
     $utfTxt = $allTxt |
-        Where-Object { $_.Name -match '-UTF8\.txt$' }
+    Where-Object { $_.Name -match '-UTF8\.txt$' }
 
     # 이 날짜 폴더가 "완료"되었는지 판단
     $allConverted = $true
@@ -159,19 +159,19 @@ if (-not $pendingDates) {
 }
 
 $ascending = 
-    if ($ProcessOrder -ieq "Oldest") { $true } else { $false }
+if ($ProcessOrder -ieq "Oldest") { $true } else { $false }
 
 # 2) 작업 필요 날짜를 정렬 후, 가장 오래된 것부터 MaxCount개 선택
 if ($ascending) {
     $selectedDates = $pendingDates |
-        Sort-Object { [int]$_ } |
-        Select-Object -First $MaxCount
+    Sort-Object { [int]$_ } |
+    Select-Object -First $MaxCount
     Log "ORDER = Oldest --> Newst"
 }
 else {
     $selectedDates = $pendingDates |
-        Sort-Object { [int]$_ } -Descending |
-        Select-Object -First $MaxCount
+    Sort-Object { [int]$_ } -Descending |
+    Select-Object -First $MaxCount
     Log "ORDER = Newest --> Oldest"
 }
 
