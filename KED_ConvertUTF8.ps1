@@ -1,22 +1,13 @@
 param(
-    [string]$ConfigPath = ".\config.json"
+    [string]$ConfigPath = "D:\WORK\config-db1215.json"
 )
 
-# ---------------------------------------------------------
-# Load JSON Configuration
-# ---------------------------------------------------------
-function Get-AppConfig {
-    param([string]$ConfigPath)
+$lib = Join-Path $PSScriptRoot "lib"
 
-    if (Test-Path $ConfigPath) {
-        return (Get-Content $ConfigPath -Raw | ConvertFrom-Json)
-    }
-    else {
-        throw "Configuration file not found: $ConfigPath"
-    }
-}
+. "$lib\Get-AppConfig.ps1"
+. "$lib\Log.ps1"
 
-$config = Get-AppConfig -ConfigPath $ConfigPath
+$config = Get-AppConfig -Path $ConfigPath
 
 $TargetRoot = $config.TargetRoot
 
@@ -29,16 +20,6 @@ $MaxCount = $config.MaxProcessCount
 if (-not $MaxCount -or $MaxCount -le 0) {
     $MaxCount = 5
 }
-
-# ---------------------------------------------------------
-# Logging Utility
-# ---------------------------------------------------------
-function Log {
-    param([string]$Message, [string]$Level = "INFO")
-    $ts = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "[$ts][$Level] $Message"
-}
-
 
 # ---------------------------------------------------------
 # Convert TXT → UTF8 for a single date

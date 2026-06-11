@@ -4,6 +4,7 @@ BEGIN
 insert into ked50d1_h 
 select a.*
       ,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+      ,null
   from ked50d1 a
     on duplicate key
 update updated = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s');

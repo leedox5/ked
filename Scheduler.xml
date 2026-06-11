@@ -1,0 +1,19 @@
+<service>
+  <id>KEDScheduler</id>
+  <name>KED Scheduler</name>
+  <description>KED PowerShell Scheduler Service</description>
+
+  <executable>C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</executable>
+  <arguments>-NoProfile -ExecutionPolicy Bypass -File "D:\Projects\ked\Scheduler.ps1" -Mode Service</arguments>
+  <workingdirectory>D:\Projects\ked</workingdirectory>
+
+  <logpath>D:\Projects\ked\logs</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10485760</sizeThreshold>
+    <keepFiles>10</keepFiles>
+  </log>
+
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="30 sec"/>
+  <resetfailure>1 hour</resetfailure>
+</service>

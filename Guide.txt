@@ -1,0 +1,13 @@
+스케쥴러 설정
+PowerShell CMD 창에서
+cd D:\Projects\ked
+
+수동으로 1회 수행
+PS D:\Projects\ked> .\Scheduler.ps1 -Mode Test
+
+실행결과 확인
+D:\WORK\LOGS\*.log 파일 확인
+
+서비스에 등록
+KED Scheduler : 매시에 한시간 간격으로 돌아감
+암호 바뀌었을때 재설정 필요

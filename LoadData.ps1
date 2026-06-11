@@ -1,7 +1,13 @@
 param (
     [string]$ConfigPath = "D:\WORK\config.json"
 )
+$lib = Join-Path $PSScriptRoot "lib"
 
+. "$lib\Get-AppConfig.ps1"
+. "$lib\Log.ps1"
+. "$lib\Invoke-MySql.ps1"
+
+<#
 function Log {
     param(
         [string]$Message,
@@ -52,7 +58,7 @@ function Invoke-MySql {
         throw "mysql.exe faild. exitCode=$LASTEXITCODE"
     }
 }
-
+#>
 
 try {
     $config = Get-AppConfig -Path $ConfigPath
@@ -71,8 +77,6 @@ try {
     foreach ($d in $folders) {
         $dir = Join-Path $TargetRoot $d
         $utfFiles = Get-ChildItem -Path $dir -Filter "*UTF8.txt" -ErrorAction SilentlyContinue
-
-        Log "Working Folder $dir"
 
         foreach ($utf in $utfFiles) {
             $baseName = [System.IO.Path]::GetFileNameWithoutExtension($utf.Name)
@@ -98,7 +102,12 @@ try {
                 continue
             }
 
+            Log(">>>> > {0}" -f $dir)
+
             try {
+                $doneCount++
+                Log ("{0} S {1}" -f $doneCount.ToString("0000"), $doneFile)
+
                 Invoke-MySql -Config $config -sql "TRUNCATE TABLE $table;"
 
                 # MySQL-safe path
@@ -114,9 +123,8 @@ try {
                 Invoke-MySql -Config $config -sql "CALL $procName('$stdDate');"
 
                 New-Item -ItemType File -Path $doneFile | Out-Null
-                Log "DONE CREATED --> $doneFile"
 
-                $doneCount++
+                Log ("{0} E {1}" -f $doneCount.ToString("0000"), $doneFile)
             }
             catch {
                 Log "ERROR on $table / $stdDate : $($_.Exception.Message)" "ERROR"

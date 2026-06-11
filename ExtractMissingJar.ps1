@@ -2,17 +2,9 @@ param (
     [string]$SourceRoot = "\\CIAST\KoDATA",
     [string]$TargetRoot = "D:\WORK\DATA"
 )
+$lib = Join-Path $PSScriptRoot "lib"
 
-function Log {
-    param(
-        [string]$Message,
-        [string]$Level = "INFO"
-    )
-
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "[$timestamp] [$Level] $Message"
-}
-
+. "$lib\Log.ps1"
 function Invoke-ExtractJarForDate {
     param(
         [string]$DateStr,

@@ -18,29 +18,12 @@ $config = Get-AppConfig -Path $ConfigPath
 $TargetRoot = $config.TargetRoot
 $TargetTables = $config.TargetTables
 $maxCount = $config.MaxLoadCount
-$TableCheck = $config.TableCheck
 
 $skipCount = 0
 $doneCount = 0
 $errorCount = 0
 
 $TargetTables = ($config.TargetTables -split '\s*,\s*') | Where-Object { $_ -ne '' }
-
-$DdlRoot = $config.DdlRoot
-
-if (-not $DdlRoot) {
-    throw "DdlRoot is missing in config.json"
-}
-
-if ($TableCheck -eq "Y") {
-    foreach ($t in $TargetTables) {
-        Ensure-Table -Config $config -TableName $t -DdlRoot $DdlRoot
-        Ensure-Table -Config $config -Tablename "$($t)_H" -DdlRoot $DdlRoot
-
-        $procName = "CHK_$t"
-        Ensure-Procedure -Config $config -ProcName $procName -DdlRoot $DdlRoot
-    }
-}
 
 $folders = Get-ChildItem $TargetRoot -Directory |
 Sort-Object Name -Descending
@@ -54,7 +37,7 @@ foreach ($d in $folders) {
     $dir = Join-Path $TargetRoot $d
     $utfFiles = Get-ChildItem -Path $dir -Filter "*UTF8.txt" -ErrorAction SilentlyContinue
 
-    #Log ">>>> > $dir"
+    Log "Working Folder $dir"
 
     foreach ($utf in $utfFiles) {
         $baseName = [System.IO.Path]::GetFileNameWithoutExtension($utf.Name)
@@ -65,17 +48,19 @@ foreach ($d in $folders) {
         $doneFile = [IO.path]::ChangeExtension($utf.FullName, ".comp")
 
         if ($doneCount -ge $maxCount) {
-            # Log "MAX LOAD COUNT REACHED -> STOP BATCH"
+            Log "MAX LOAD COUNT REACHED -> STOP BATCH"
             Log "SKIP: $skipCount, DONE: $doneCount"
             return
         }
 
+        <# 잠시 막음
         if ($errorCount -ge $maxCount) {
-            #Log "MAX Error count reached, STOP BATCH"
+            Log "MAX Error count reached, STOP BATCH"
             Log "SKIP: $skipCount, DONE: $doneCount, ERROR: $errorCount"
             return
         }
- 
+        #>
+
         if (Test-Path $doneFile) {
             $skipCount++
             continue
@@ -85,19 +70,21 @@ foreach ($d in $folders) {
             $skipCount++
             continue
         }
-        
-        Log ">>>> > $dir"
 
         try {
-            $doneCount++
-            Log ("{0} S {1}" -f $doneCount.ToString("0000"), $utf.FullName)
-
             Invoke-MySql -Config $config -sql "TRUNCATE TABLE $table;"
+
 
             # MySQL-safe path
             $mysqlFilePath = $utf.FullName -replace "\\", "/"  
 
+            <#
             Invoke-MySql -Config $config -sql "LOAD DATA LOCAL INFILE '$mysqlFilePath' INTO TABLE $table FIELDS TERMINATED BY '|';"
+            #>
+
+            $mysqlCmd = "mysql --login-path=ked --local-infile=1 db1215 -e `"LOAD DATA LOCAL INFILE '$mysqlFilePath' INTO TABLE $table FIELDS TERMINATED BY '|';`""
+            Log "SQL : $mysqlCmd"
+            Invoke-Expression $mysqlCmd
 
             $procName = "CHK_$table"
             
@@ -108,9 +95,11 @@ foreach ($d in $folders) {
             #>
 
             Invoke-MySql -Config $config -sql "CALL $procName('$stdDate');"
+
             New-Item -ItemType File -Path $doneFile | Out-Null
-            
-            Log ("{0} E {1}" -f $doneCount.ToString("0000"), $utf.FullName)
+            Log "DONE CREATED --> $doneFile"
+
+            $doneCount++
         }
         catch {
             Log "ERROR on $table / $stdDate : $($_.Exception.Message)" "ERROR"
