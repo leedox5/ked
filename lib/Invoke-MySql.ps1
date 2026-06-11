@@ -4,9 +4,10 @@ function Invoke-MySql {
         [string]$Sql
     )
     $db = $Config.MySQL.Database
+    $LoginPath = $Config.MySQL.LoginPath
 
     $arguments = @(
-        "--login-path=ked"
+        "--login-path=$LoginPath"
         "--default-character-set=utf8mb4"
         "--local-infile=1"
         $db
