@@ -3,7 +3,11 @@ param (
     [string]$Mode = "Service"
 )
 
+$ConfigPath = "D:\WORK\config-db1215.json";
 $LogDir  = "D:\WORK\LOGS"
+$lib = Join-Path $PSScriptRoot "lib"
+
+. "$lib\Get-AppConfig.ps1"
 
 if (-not (Test-Path $LogDir)) {
     New-Item -ItemType Directory -Path $LogDir | Out-Null
@@ -53,16 +57,17 @@ try {
     $LastRunSlot = ""
 
     while ($true) {
+        $config = Get-AppConfig -Path $ConfigPath
         $now = Get-Date
-        $CurrentSlot = $now.ToString("yyyyMMddHH")
-        # 예: 07:00 실행
-        # if ($now.Hour -eq 7 -and $now.Minute -eq 0) {
-        # 60분마다
-        if ($now.Minute -eq 0 -and $CurrentSlot -ne $LastRunSlot) {
+        $CurrentSlot = $now.ToString("yyyyMMddHHmm")
+
+        if ($now.Minute -in $config.RunMinutes -and $CurrentSlot -ne $LastRunSlot) {
+            Write-Log ">>>> RunMiutes matched: $($config.RunMinutes -join ', '). Current time: $CurrentSlot. Starting job."
             $LastRunSlot = $CurrentSlot
             Invoke-Job
         }
-        Start-Sleep -Seconds 30
+
+        Start-Sleep -Seconds (60 - $now.Second)
     }
 }
 catch {
