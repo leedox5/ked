@@ -50,16 +50,19 @@ try {
         exit 0
     }
 
+    $LastRunSlot = ""
+
     while ($true) {
         $now = Get-Date
+        $CurrentSlot = $now.ToString("yyyyMMddHH")
         # 예: 07:00 실행
         # if ($now.Hour -eq 7 -and $now.Minute -eq 0) {
         # 60분마다
-        if ($now.Minute -eq 0) {
+        if ($now.Minute -eq 0 -and $CurrentSlot -ne $LastRunSlot) {
+            $LastRunSlot = $CurrentSlot
             Invoke-Job
-            Start-Sleep -Seconds 70
         }
-        Start-Sleep -Seconds 10
+        Start-Sleep -Seconds 30
     }
 }
 catch {
