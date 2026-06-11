@@ -2,8 +2,11 @@ param (
     [string]$SourceRoot = "\\CIAST\KoDATA",
     [string]$TargetRoot = "D:\WORK\DATA"
 )
+
+$ConfigPath = "D:\WORK\config-db1215.json";
 $lib = Join-Path $PSScriptRoot "lib"
 
+. "$lib\Get-AppConfig.ps1"
 . "$lib\Log.ps1"
 function Invoke-ExtractJarForDate {
     param(
