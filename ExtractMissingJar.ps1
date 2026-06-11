@@ -8,10 +8,11 @@ $lib = Join-Path $PSScriptRoot "lib"
 function Invoke-ExtractJarForDate {
     param(
         [string]$DateStr,
-        [string]$TargetRoot = "D:\WORK\DATA"
+        [string]$SourceRoot,
+        [string]$TargetRoot
     )
 
-    $jarRealPath = "\\CIAST\KoDATA\$DateStr\ciast_$DateStr.jar"
+    $jarRealPath = "$SourceRoot\$DateStr\ciast_$DateStr.jar"
     $targetDir = Join-Path $TargetRoot $DateStr
 
     $sourceFile = Join-Path $targetDir "KED5026.txt"
@@ -54,7 +55,7 @@ function Invoke-ExtractJarForDate {
         }
 
         (Get-Content -Path $sourceFile) | 
-            Set-Content -Encoding UTF8 -Path $utf8File
+        Set-Content -Encoding UTF8 -Path $utf8File
 
         Log "UTF-8 conversion complete: $utf8File"
     }
@@ -63,19 +64,24 @@ function Invoke-ExtractJarForDate {
     Log ""
 }
 
+$config = Get-AppConfig -Path $ConfigPath
+
+$SourceRoot = $config.SourceRoot
+$TargetRoot = $config.TargetRoot
+
 # Source 날짜폴더 목록 수집
 $sourceDates = Get-ChildItem -Path $SourceRoot -Directory |
-    Where-Object {
-        $_.Name -match '^\d{8}$'
-    } |
-    Select-Object -ExpandProperty Name
+Where-Object {
+    $_.Name -match '^\d{8}$'
+} |
+Select-Object -ExpandProperty Name
 
 # Target 날짜폴더 목록 수집
 $targetDates = Get-ChildItem -Path $TargetRoot -Directory -ErrorAction SilentlyContinue |
-    Where-Object {
-        $_.Name -match '^\d{8}$'
-    } |
-    Select-Object -ExpandProperty Name
+Where-Object {
+    $_.Name -match '^\d{8}$'
+} |
+Select-Object -ExpandProperty Name
 
 $missingDates = $sourceDates | Where-Object { $_ -notin $targetDates }
 
@@ -85,14 +91,14 @@ if (-not $missingDates) {
 }
 
 $nextFive = $missingDates | 
-    Sort-Object { [int]$_ } | 
-    Select-Object -First 5
+Sort-Object { [int]$_ } | 
+Select-Object -First 5
 
 Log "Next 5 dates to process (oldest first): $($nextFive -join ', ')" "INFO"
 Log ""
 
 foreach ($dateStr in $nextFive) {
-    Invoke-ExtractJarForDate -DateStr $dateStr -TargetRoot $TargetRoot
+    Invoke-ExtractJarForDate -DateStr $dateStr -SourceRoot $SourceRoot -TargetRoot $TargetRoot
 }
 
 
