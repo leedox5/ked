@@ -12,7 +12,6 @@ function Invoke-MySql {
         $db
         "-e", $sql
     )
-
     <#
     Log "Executing: $sql"
     #>
